@@ -243,6 +243,33 @@ minimum(struct pro_veb *v)
     }
 }
 
+int 
+successor(struct pro_veb *v, int x)
+{
+    int mini_cluster, offset, w;
+
+    if (v->u == 2) {
+        if (x == 0 && v->A[1] == 1)
+            return 1;
+        else
+            return -1;
+    } else {
+        w = test_population(v->u - 1);
+        offset = successor(v->cluster[HIGH(x, w)], LOW(x, w));      //make assumptions that sx is in the same cluster with x
+        if (offset != -1)                                           //when offset != -1, the assumption of the next recursive level was right.
+            return INDEX(HIGH(x, w), offset, w);
+        else {                                                      //when offset == -1, the assumptin of the next recursive level was wrong. 
+            mini_cluster = successor(v->summary, HIGH(x, w));
+            if (mini_cluster == -1)
+                return -1;
+            else {
+                offset = minimum(v->cluster[mini_cluster]);
+                return INDEX(mini_cluster, offset, w);
+            }
+        }
+    }
+}
+
 int main()
 {
     test_macro();
@@ -259,11 +286,27 @@ int main()
     travel_veb(root);
 
     printf("------------------------------insert_test--------------------------------\n");
-    insert(root, 13);
+    insert(root, 2);
+    insert(root, 3);
+    insert(root, 4);
+    insert(root, 5);
+    insert(root, 7);
+    insert(root, 14);
+    insert(root, 15);
     travel_veb(root);
 
     printf("------------------------------minimum_test--------------------------------\n");
     printf("minimum = %d\n", minimum(root));
+
+    printf("------------------------------successor_test--------------------------------\n");
+    int x, sx;
+    x = 0;
+    while(x < 16) {
+        sx = successor(root, x);
+        printf("x = %d, sx = %d\n", x, sx);
+        x++;
+    }
+
 
     return 0;
 }
